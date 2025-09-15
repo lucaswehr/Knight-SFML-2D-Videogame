@@ -31,6 +31,11 @@ Known Bugs:
 
 - The boss at the end isn't entirely polished
 
+
+Heres a video link to a 2 month old build of the game:
+
+https://youtu.be/GEIgncOb57M
+
 WORK IN PROGESS
 
 
