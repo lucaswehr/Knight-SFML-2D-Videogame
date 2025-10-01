@@ -1,17 +1,17 @@
 #pragma once
 #include "Animation.hpp"
 #include <SFML/Graphics.hpp>
-#include "Tilemap.hpp"
 #include "Tile.hpp"
 #include "wolf.hpp"
 #include "Enemy.hpp"
 #include "Arrow.hpp"
+#include "text.hpp"
 
 class Knight 
 {
 public:
 
-	Knight(sf::Texture& walk2, sf::Texture& Idle2, sf::Texture& jump2, sf::Texture& attack1, sf::Texture& attack2, sf::Texture& attack3, sf::Texture& run, sf::Texture& shield, sf::Texture& runAttack, sf::Texture& hurtTexture, sf::Texture& deadTexture, sf::Texture& hangingTexture, sf::Texture& climbTexture, sf::Texture& rollTexture) :
+	Knight(sf::Texture& walk2, sf::Texture& Idle2, sf::Texture& jump2, sf::Texture& attack1, sf::Texture& attack2, sf::Texture& attack3, sf::Texture& run, sf::Texture& shield, sf::Texture& runAttack, sf::Texture& hurtTexture, sf::Texture& deadTexture, sf::Texture& hangingTexture, sf::Texture& climbTexture, sf::Texture& rollTexture, sf::Texture& elixirTexture, sf::Texture& potionTexture, std::string& fontText) :
 		Idle(Idle2, 4, 1, 0.3f, 0, true, true), //Texture, number of frames, rows, speed, 0 if its just one row of animatoin, if it should invert, if the animation should loop infintly
 		walk(walk2, 8, 1, 0.1f, 0, true, true),
 		jump(jump2, 6, 1, 0.15f, 0, true, true),
@@ -26,6 +26,11 @@ public:
 		hanging(hangingTexture,6,1, 0.1f,0,true, true),
 		climbing(climbTexture,6, 1, 0.1f , 0, true, false),
 		roll(rollTexture, 6, 1, 0.1f, 0, true, false),
+		elixir(elixirTexture, 4, 1, 0.2f, 0, true, false),
+		healthText(fontText, "Health: ", 840, 800.f, sf::Color::White, 90),
+		deathText(fontText, "You Died", 500.f, 1000.f, sf::Color::Red, 250),
+		potionNumText(fontText, "", 500.f, 1000.f, sf::Color::White, 40),
+		ending(fontText, "Dragon Slain", 840, 800.f, sf::Color::White, 250),
 		currentAnimation(&Idle),
 		walkSound1(walkBuffer1),
 		walkSound2(walkBuffer2),
@@ -42,8 +47,10 @@ public:
 		deathSound1(deathBuffer1),
 		deathSound2(deathBuffer2),
 		hangSound1(hangBuffer1),
-		dragonScreamSound(dragonScreamBuffer)
-
+		dragonScreamSound(dragonScreamBuffer),
+		potionSound(potionSoundBuffer),
+		healthPotion(potionTexture),
+		enemeyFelledSound(enemeyFelledBuffer)
 	{
 		
 		initializeSounds();
@@ -87,6 +94,8 @@ public:
 		bossMusicBox2.setOrigin({ 20.f, 10.f });
 		bossMusicBox2.setFillColor(sf::Color(0, 0, 255, 128));
 
+		healthPotion.setScale({ 4,4 });
+
 		bossMusicBox.setPosition({ 7000,-300 });
 
 		bossMusicBox2.setPosition({ 10900,200 });
@@ -94,33 +103,39 @@ public:
 		dragonScreamBuffer.loadFromFile("Sounds/DragonScream.mp3");
 		dragonScreamSound.setBuffer(dragonScreamBuffer);
 
-		float startX = 400.f;               // X start position on map
-		float startY = -200.f;                // Y start position on ground level
-		currentAnimation->getSprite().setPosition({ startX, startY });
+		potionSoundBuffer.loadFromFile("Sounds/potionSound.wav");
+		potionSound.setBuffer(potionSoundBuffer);
+
+		enemeyFelledBuffer.loadFromFile("Sounds/enemeyFelled.mp3");
+		enemeyFelledSound.setBuffer(enemeyFelledBuffer);
+		
+		float startX = 400.f;  // X start position on map
+		float startY = 1825.f; // Y start position on ground level
+
 		knightBox.setPosition({ startX, startY });
+		currentAnimation->getSprite().setPosition({ startX, startY });
+		
 
 		int randomNumber = std::rand() % 3 + 1;
 
 		if (randomNumber == 1)
 		{
 			music.openFromFile("Sounds/music.mp3");
-
 		}
 		else if (randomNumber == 2)
 		{
 			music.openFromFile("Sounds/music2.mp3");
-
 		}
 		else
 		{
 			music.openFromFile("Sounds/Woodland Fantasy.mp3");
-
 		}
 
-		music.play();
-
-
+		deathMusic.openFromFile("Sounds/YouDied.mp3");
 		
+
+		healthText.setPosition(currentAnimation->getPosition().x - 200, currentAnimation->getPosition().y - 600);
+
 	}
 
 	void loadTileMap(sf::Texture& tileset, const std::vector<std::vector<int>>& mapData, sf::Vector2u tileSize, std::vector<Tile>& tiles);
@@ -131,9 +146,13 @@ public:
 
 	void update(float dt, std::vector<Tile> tiles, std::vector<std::unique_ptr<Enemy>>& enemies, std::vector<Arrow>& arrows)
 	{
+		potionNumText.setString(std::to_string(potionNumber));
 
+		if (health > 0)
+			healthText.setString("Health: " + std::to_string(health));
+		else
+			healthText.setString("Health: " + std::to_string(0));
 		
-
 		if (isRolling)
 		{
 			if (lastDir == Direction::Right)
@@ -151,10 +170,6 @@ public:
 		leftLureBox.setPosition({ currentAnimation->getSprite().getPosition() });
 
 		climbingBox.setPosition({ currentAnimation->getSprite().getPosition() });
-
-
-		//std::cout << knightBox.getPosition().x << "," << knightBox.getPosition().y << std::endl;
-
 
 		isGuarding = false;
 
@@ -180,11 +195,9 @@ public:
 				(random == 0 ? deathSound1 : deathSound2).play();
 				
 				switchAnimation(&dead);
-
+				health = 0;
 				playOnce = true;
 
-				
-				
 			}
 
 			if (currentAnimation->isFinished())
@@ -206,6 +219,44 @@ public:
 
 		}
 
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R) && !isDrinking && !isJumping && !isRolling && !isSprinting && !isSprintAttacking && !isAttacking && potionNumber > 0)
+		{
+			elixir.getSprite().setPosition({ knightBox.getPosition().x - 100,  knightBox.getPosition().y - 100 });
+			switchAnimation(&elixir);
+			isDrinking = true;
+			currentAnimation->reset();
+			
+		}
+
+		if (isDrinking && isHurt)
+		{		
+			isDrinking = false;
+
+		}
+		else if (isDrinking)
+		{
+			if(!isHurt)
+			velocity.x = 0.f;
+
+			//knightBox.setPosition({ currentAnimation->getPosition().x + 20, currentAnimation->getPosition().y });
+
+			if (currentAnimation->getCurrentFrame() == 2)
+			{
+				potionSound.play();
+			}
+
+			if (currentAnimation->isFinished())
+			{
+				health += 50;
+				potionNumber--;
+
+				if (health > 100) health = 100;
+				
+				isDrinking = false;
+				
+			}
+		}
+
 
 		Direction currentDir = lastDir;
 
@@ -213,19 +264,20 @@ public:
 
 		bool isWalking = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
 		bool shouldPlayWalkSound = isWalking && isOnGround && !isAttacking && !isSprintAttacking && !postAttackCooldown;
-		
-		//std::cout << currentAnimation->getPosition().x << "," << currentAnimation->getPosition().y << std::endl;
 
+		if (!isDrinking)
 		attackLogic(enemies, dt);
 
-		bool isWPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W );
+		
+
+		bool isWPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space );
 
 		if (isWPressed && !wasWPressedLastFrame)
 		{
 			jumpCount++;
 			wPressed++;
 
-			if (!isJumping && !isSprintAttacking && !postAttackCooldown && !isRolling)
+			if (!isJumping && !isSprintAttacking && !postAttackCooldown && !isRolling && !isDrinking && !isAttacking)
 			{
 				//std::cout << "INSDIE JUMPING ANIMAION" << std::endl;
 				velocity.y = jumpStrength;
@@ -253,7 +305,7 @@ public:
 		wasWPressedLastFrame = isWPressed;
 		bool rightKeyPressed = false;
 
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && isSprinting && !isAttacking && !isJumping && !isRolling)
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && isSprinting && !isAttacking && !isJumping && !isRolling && !isDrinking)
 		{
 			switchAnimation(&runningAttack);
 			currentAnimation->reset();
@@ -262,19 +314,25 @@ public:
 
 		}
 
-		if (!isHurt)
+		if (!isHurt && !isDrinking)
 		{
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !isRolling && !isJumping)
+			float timeSinceLastRoll = rollDelayClock.getElapsedTime().asSeconds();
+
+			rollDelayClock.start();
+
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !isRolling && !isJumping && !isSprinting && !isDrinking && timeSinceLastRoll >= minRollDelay)
 			{
 			
 				isRolling = true;
 				switchAnimation(&roll);
 
 				currentAnimation->reset();
+
+				rollDelayClock.reset();
 					
 				
 			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && !isJumping && !isAttacking && !postAttackCooldown && !isSprintAttacking && !isSprinting && !isRolling)
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && !isJumping && !isAttacking && !postAttackCooldown && !isSprintAttacking && !isSprinting && !isRolling && !isDrinking)
 			{
 				isSprinting = false;
 				isSprintAttacking = false;
@@ -282,13 +340,10 @@ public:
 				isGuarding = true;
 				velocity.x = 0.f;
 			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) && !isAttacking && !postAttackCooldown && !isSprintAttacking && !blockRight && !isHanging && !isRolling) {
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) && !isAttacking && !postAttackCooldown && !isSprintAttacking && !blockRight && !isHanging && !isRolling && !isDrinking) {
 				lastDir = Direction::Right;
-				//if (!checkCollision())
-			//	{
+					
 				velocity.x = 5.f;
-				//currentAnimation->getSprite().move({ 5.f, 0.f });
-			//}
 
 				if (!isJumping && !isAttacking && !postAttackCooldown) switchAnimation(&walk);
 				isSprinting = false;
@@ -308,37 +363,30 @@ public:
 
 
 
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !isAttacking && !isSprintAttacking && !isRolling)
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && !isAttacking && !isSprintAttacking && !isRolling && !isDrinking)
 				{
 					if ((!isJumping && !blockLeft) || (!isJumping && !blockRight) || !isJumping && !isRolling )
 					{
-						//std::cout << "poop" << std::endl;
 						switchAnimation(&run);
 					}
-
-
-					//currentAnimation->getSprite().move({ 6.f, 0.f });
 
 					velocity.x = 8.f;
 					isSprinting = true;
 
 				}
 			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && !postAttackCooldown && !isSprintAttacking && !blockLeft && !isHanging && !isRolling)
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && !postAttackCooldown && !isSprintAttacking && !blockLeft && !isHanging && !isRolling && !isDrinking)
 			{
-				//std::cout << "LEFT";
+				
 				lastDir = Direction::Left;
 
-				//if (!checkCollision())
-				//{
 				velocity.x = -5.f;
-				/*currentAnimation->getSprite().move({ -5.f, 0.f });*/
-			//}
+				
 				isSprinting = false;
 				isSprintAttacking = false;
 				if (!isJumping && !isAttacking && !postAttackCooldown) switchAnimation(&walk);
 
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !isAttacking && !isSprintAttacking && !blockLeft && !isRolling)
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && !isAttacking && !isSprintAttacking && !blockLeft && !isRolling && !isDrinking)
 				{
 					//std::cout << "Sprintng" << std::endl;
 					if (!isJumping && !isRolling)
@@ -368,13 +416,12 @@ public:
 
 
 			}
-			else if (!isRolling && ((!isJumping && !isAttacking && !postAttackCooldown && !isSprinting && !isSprintAttacking) || blockLeft || blockRight || isSprinting || isClimbing)) {
+			else if (!isRolling && ((!isJumping && !isAttacking && !postAttackCooldown && !isSprinting && !isSprintAttacking && !isDrinking) || blockLeft || blockRight || isSprinting || isClimbing)) {
 				switchAnimation(&Idle);
 				isSprinting = false;
 				isSprintAttacking = false;
 				velocity.x = 0.f;
 				
-				//isClimbing = false;
 			}
 
 
@@ -399,17 +446,11 @@ public:
 
 		}
 
-
-		//std::cout << velocity.y << std::endl;
-
 		enemyKnightCollision(enemies, arrows, dt);
 
 		if (isHurt && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
 			switchAnimation(&attack1);
-
-			//isAttacking = false;
-
 		}
 
 		if (isRolling)
@@ -442,19 +483,14 @@ public:
 		
 		}
 
-		
+
 		climbingLogic(tiles);
-
 		updateGravity(dt, tiles);
-
 		lureLogic(enemies);
-
 		pullUpLogic();
-	
 		musicLogic();
 
 		currentAnimation->update(dt);
-
 	}
 
 	void draw(sf::RenderWindow& window, std::vector<Tile>& tiles) {
@@ -466,21 +502,21 @@ public:
 
 		//window.draw(rightLureBox);
 		//window.draw(leftLureBox);
+	    //window.draw(guardBox);
+		//window.draw(climbingBox);
+		//window.draw(bossMusicBox);
+		//window.draw(bossMusicBox2);
+		//window.draw(healthPotion);
 
-	//	 window.draw(guardBox);
-
-		// window.draw(climbingBox);
-		// window.draw(bossMusicBox);
-		 //window.draw(bossMusicBox2);
-
-		 window.draw(currentAnimation->getSprite());
+		window.draw(currentAnimation->getSprite());
+		
 	}
 	
 	void updateGravity(float dt, std::vector<Tile> tiles);
 
 	void drawCollisionBox(sf::RenderWindow& window) {
 
-		//window.draw(knightBox);
+	//	window.draw(knightBox);
 	}
 
 	void initializeSounds();
@@ -537,8 +573,24 @@ public:
 
 	}
 
+	void resetKnight();
+
+	void placeEnemies(std::vector<std::unique_ptr<Enemy>>& enemies);
+
+	int getHealth();
+
 	sf::Music music;
+	sf::Music deathMusic;
 	
+	Text healthText;
+	Text deathText;
+	Text potionNumText;
+	Text ending;
+
+	sf::Sprite healthPotion;
+
+	sf::SoundBuffer enemeyFelledBuffer;
+	sf::Sound enemeyFelledSound;
 
 	float elasped;
 
@@ -558,11 +610,13 @@ private:
 	Animation hanging;
 	Animation climbing;
 	Animation roll;
+	Animation elixir;
 	Animation* currentAnimation;
 
 	
-	
 	Direction lastDir;
+
+	int potionNumber = 2;
 
 	bool isAttacking = false;
 	bool postAttackCooldown = false;
@@ -577,7 +631,7 @@ private:
 	bool playOnce = false;
 
 	sf::Vector2f velocity = { 0.f, 0.f };
-	const float gravity = 1200.f; // pixels per second^2
+	const float gravity = 1200.f; 
 	const float jumpStrength = -500.f;
 	bool isJumping = false;
 	float groundY = 0.f;
@@ -597,9 +651,6 @@ private:
 	bool wolfLeft = false;
 
 	bool playSoundOnce = false;
-
-
-//	std::vector<Tile> tiles;
 	std::vector<Tile> decorations;
 
 	sf::RectangleShape knightBox;
@@ -662,12 +713,18 @@ private:
 	sf::SoundBuffer dragonScreamBuffer;
 	sf::Sound dragonScreamSound;
 
+	sf::SoundBuffer potionSoundBuffer;
+	sf::Sound potionSound;
+	
 	sf::Clock walkSoundClock;
 	bool playFirstWalkSound = true;
 	sf::Time walkInterval = sf::milliseconds(400);
 
 	sf::Clock hurtSoundClock;
 	sf::Time hurtInterval = sf::milliseconds(500);
+
+	sf::Clock rollDelayClock;
+	float minRollDelay = 0.8f;
 
 	bool shieldSoundPlayed = false;
 	sf::Clock shieldSoundTimer;
@@ -680,12 +737,14 @@ private:
 	bool playOnce3 = true;
 	bool playOnce4 = true;
 	bool playOnce5 = true;
+	bool playOnce6 = true;
 
 	bool doOnce = false;
 
 	bool touch = false;
 
 	bool isRolling = false;
+	bool isDrinking = false;
 
 	const float fadeDuration = 10.f; // seconds
 	const float startVolume = 100.f;

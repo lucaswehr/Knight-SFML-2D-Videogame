@@ -1,15 +1,15 @@
 #include "Knight.hpp"
+#include "Skeleton.hpp"
+#include "Dragon.hpp"
+#include "wolf.hpp"
 
 void Knight::loadTileMap(sf::Texture& tileset, const std::vector<std::vector<int>>& mapData, sf::Vector2u tileSize, std::vector<Tile>& tiles)
 {
-		
-		//originalRowCount - mapData.size();
-
 	tiles.clear();
 	for (std::size_t row = 0; row < mapData.size(); ++row) {
 		for (std::size_t col = 0; col < mapData[row].size(); ++col) {
 			int id = mapData[row][col];
-			if (id < 0) continue;            // skip “empty” cells
+			if (id < 0) continue;            // skip empty cells
 
 			/*if (id != 0 && id != 1 && id != 2 && id != 11 && id != 12 ) // for if the knight should be able to pass through some tiles
 			{*/
@@ -42,11 +42,11 @@ void Knight::loadTileMap(sf::Texture& tileset, const std::vector<std::vector<int
 				if (id == 0 || id == 30)
 				t.ledgeGrabBox = sf::FloatRect({ t.getSprite().getPosition().x - 10,
 					t.getSprite().getPosition().y }, {
-					10.f, 10.f }); // Adjust for hand position
+					10.f, 10.f }); 
 				else
 					t.ledgeGrabBox = sf::FloatRect({ t.getSprite().getPosition().x + 200 / 2.f - 5.f,
 					t.getSprite().getPosition().y }, {
-					10.f, 10.f }); // Adjust for hand position
+					10.f, 10.f });
 
 			}
 
@@ -73,12 +73,6 @@ void Knight::loadDecorationMap(sf::Texture& decorationTexture, sf::Texture& bush
 
 
 			Tile tree(id, decorationTexture, spriteSize, false);
-
-	
-
-			//tree.getSprite().setScale({ 3.f, 3.f });
-
-			//tree.getSprite().setPosition({ col * spriteWidth * 3.f, row * spriteHeight * 3.f });
 
 			
 				float posX = col * tileWidth * 3.f;  // x position is based on tiles
@@ -188,7 +182,6 @@ void Knight::updateGravity(float dt, std::vector<Tile> tiles)
 
 				if (currentBottom <= tileTop && nextBottom >= tileTop)
 				{
-					// Only adjust sprite here — this keeps your -50.f offset
 					currentAnimation->getSprite().setPosition({
 						currentAnimation->getSprite().getPosition().x,
 						tileTop - knightHeight - 50.f
@@ -205,23 +198,8 @@ void Knight::updateGravity(float dt, std::vector<Tile> tiles)
 		if (isHanging)
 			velocity = { 0.f, 0.f };
 
-		// 4. Move sprite
-		currentAnimation->getSprite().move({ velocity.x, velocity.y * dt });
-
-		// 5. Sync the knightBox AFTER movement/collisions
-		//knightBox.setPosition(currentAnimation->getSprite().getPosition());
-	
-
-	
-
-	
+		currentAnimation->getSprite().move({ velocity.x, velocity.y * dt });	
 }
-
-
-//std::vector<Tile> Knight::getTile()
-//{
-//	return this->tiles;
-//}
 
 void Knight::initializeSounds()
 {
@@ -281,9 +259,6 @@ void Knight::initializeSounds()
 
 void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, std::vector<Arrow>& arrows, float dt)
 {
-	//for (auto& example : enemies)
-	//{
-
 	for (auto& arrow : arrows)
 	{
 		if (arrow.getArrowOnTile()) continue;
@@ -292,8 +267,6 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 		bool arrowIsComingFromFront =
 			(lastDir == Direction::Right && arrow.velocity.x < 0) ||
 			(lastDir == Direction::Left && arrow.velocity.x > 0);
-
-		//bool arrowHitsShield = guardBox.getGlobalBounds().findIntersection(arrow.getBounds());
 
 		if (guardBox.getGlobalBounds().findIntersection(arrow.getBounds()) && isGuarding && arrowIsComingFromFront)
 		{
@@ -346,7 +319,7 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 		else if (knightBox.getGlobalBounds().findIntersection(enemy->getBounds()) || knightBox.getGlobalBounds().findIntersection(enemy->getAttackBoxBounds()))	
 		{
 
-			if (!isRolling)
+			if (!isRolling && currentAnimation != &hurt)
 			{
 				enemy->knightDamagedTrue();
 
@@ -358,7 +331,7 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 
 				if (playOnce3)
 				{
-					health -= 50;
+					health -= 40;
 					playOnce3 = false;
 				}
 
@@ -399,8 +372,6 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 		playOnce3 = true;
 	}
 
-	//}
-
 	if (isKnockedback)
 	{
 		knockbackTimer -= dt;
@@ -416,7 +387,6 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 
 				if (hurtSoundClock.getElapsedTime() >= hurtInterval && !playSoundOnce)
 				{
-					//playSoundOnce = true;
 
 					if (randomNumber == 1)
 					{
@@ -448,7 +418,7 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 
 
 			switchAnimation(&Idle);
-			//std::cout << "FALSE" << std::endl;
+			
 		}
 
 	}
@@ -458,31 +428,21 @@ void Knight::enemyKnightCollision(std::vector<std::unique_ptr<Enemy>>& enemies, 
 		shieldSoundPlayed = false;
 	}
 
-//	for (auto& arrow : arrows)
-//	{
-//		if (arrow.velocity.x == 0.f)
-//			continue;
-//
-//
-//		//if (isKnockedback)
-////		velocity.x = arrow.arrowDirection() ? 8.f : -8.f;
-//
-//
-//
-//	}
-
-
 }
 
 void Knight::attackLogic(std::vector<std::unique_ptr<Enemy>>& enemies, float dt)
 {
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !postAttackCooldown && !isSprinting && !isSprintAttacking && isOnGround && !blockLeft && !blockRight && !isRolling) {
+
+	
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !postAttackCooldown && !isSprinting && !isSprintAttacking && isOnGround && !blockLeft && !blockRight && !isRolling && !isJumping && !isAttacking && !isHurt) {
 
 		isSprinting = false;
 
 		//std::cout << "Attack" << std::endl;
+		isAttacking = true;
 
-		if (!isAttacking) // if its false
+		if (isAttacking) // if its false
 		{
 			int randomNumber = std::rand() % 3 + 1;
 
@@ -505,7 +465,7 @@ void Knight::attackLogic(std::vector<std::unique_ptr<Enemy>>& enemies, float dt)
 
 
 			currentAnimation->reset();
-			isAttacking = true;
+		
 
 			for (auto& example : enemies)
 			{
@@ -547,7 +507,8 @@ void Knight::attackLogic(std::vector<std::unique_ptr<Enemy>>& enemies, float dt)
 
 		}
 
-
+		if (isHurt)
+			isAttacking = false;
 
 		if (currentAnimation->isFinished())
 		{
@@ -600,13 +561,13 @@ void Knight::lureLogic(std::vector<std::unique_ptr<Enemy>>& enemies)
 				if (inRightLure)
 				{
 					enemy->setEnemyRightLure(true);
-					enemy->setEnemyLeftLure(false); // Reset opposite
+					enemy->setEnemyLeftLure(false); 
 					enemy->setDirection(enemyDirection::Right);
 				}
 				else if (inLeftLure)
 				{
 					enemy->setEnemyLeftLure(true);
-					enemy->setEnemyRightLure(false); // Reset opposite
+					enemy->setEnemyRightLure(false);
 					enemy->setDirection(enemyDirection::Left);
 				}
 				else
@@ -641,7 +602,7 @@ void Knight::climbingLogic(std::vector<Tile>& tiles)
 {
 	for (auto& tile : tiles)
 	{
-		if (climbingBox.getGlobalBounds().findIntersection(tile.ledgeGrabBox) && jumpCount > 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+		if (climbingBox.getGlobalBounds().findIntersection(tile.ledgeGrabBox) && jumpCount > 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 		{
 			if (tile.getID() == 32 || tile.getID() == 2)
 			{
@@ -682,7 +643,7 @@ void Knight::pullUpLogic()
 
 	}
 
-	if (isHanging && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && wPressed > 1)
+	if (isHanging && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && wPressed > 1)
 	{
 		isClimbing = true;
 
@@ -710,6 +671,59 @@ void Knight::pullUpLogic()
 		}
 	}
 	
+}
+
+
+int Knight::getHealth()
+{
+	return health;
+}
+
+void Knight::resetKnight()
+{
+	std::cout << "Resetting Knight\n";
+	health = 100;
+
+	knightBox.setPosition({ 400.f,1825.f });
+	currentAnimation->getSprite().setPosition({ 400.f,1825.f });
+	velocity.x = 0.f;
+	
+	isAttacking = false;
+	postAttackCooldown = false;
+	isSprinting = false;
+	isSprintAttacking = false;
+	isGuarding = false;
+	isJumping = false;
+	isDead = false;
+	playOnce = false;
+	wasWPressedLastFrame = false;
+	isClimbing = false;
+	isHurt = false;
+	isKnockedback = false;
+	blockLeft = false;
+	blockRight = false;
+	touch = false;
+	isRolling = false;
+	isHanging = false;
+
+	potionNumber = 2;
+	postAttackTimer = 0.f;
+	knockbackTimer = 0.f;
+	jumpCount = 0;
+	wPressed = 0;
+	playOnce2 = playOnce3 = playOnce4 = playOnce5 = true;
+
+	switchAnimation(&Idle);
+	currentAnimation->reset();
+	
+	dead.reset();
+
+
+	lastDir = Direction::Right;
+	clock2.restart();
+	std::cout << "Resetting Knight\n";
+	
+
 }
 
 

@@ -5,27 +5,27 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 
 	if (currentAnimation == Special.get() || currentAnimation == Landing.get())
 	{
-		dragonBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y - 100.f});
+		dragonBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y - 100.f });
 	}
 	else
 	{
 		dragonBox.setPosition(currentAnimation->getSprite().getPosition());
 	}
-	
+
 
 	if (currentAnimation != Flight.get() && currentAnimation != Takeoff.get() && currentAnimation != Special.get() && currentAnimation != Hurt.get())
-	helper.setPosition(currentAnimation->getSprite().getPosition());
+		helper.setPosition(currentAnimation->getSprite().getPosition());
 
 	if (currentAnimation == Flight.get() || currentAnimation == Takeoff.get() || currentAnimation == Special.get() || currentAnimation == Landing.get())
 	{
 		if (lastDir == enemyDirection::Left)
-		placeHolder.setPosition({ currentAnimation->getSprite().getPosition().x,  currentAnimation->getSprite().getPosition().y + 250 });
+			placeHolder.setPosition({ currentAnimation->getSprite().getPosition().x,  currentAnimation->getSprite().getPosition().y + 250 });
 		else if (lastDir == enemyDirection::Right)
 			placeHolder.setPosition({ currentAnimation->getSprite().getPosition().x,  currentAnimation->getSprite().getPosition().y + 250 });
 	}
 	else
 	{
-        placeHolder.setPosition(currentAnimation->getSprite().getPosition());
+		placeHolder.setPosition(currentAnimation->getSprite().getPosition());
 	}
 
 	leftLureBox.setPosition(currentAnimation->getSprite().getPosition());
@@ -36,8 +36,8 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 	{
 		attackBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y });
 	}
-	else if  (!this->initalizer && !isMoving)
-	attackBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y });
+	else if (!this->initalizer && !isMoving)
+		attackBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y });
 
 	attackInitializer.setPosition(currentAnimation->getSprite().getPosition());
 
@@ -45,7 +45,7 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 	{
 		placeHolder.setOrigin({ 180,-500 });
 
-		attackInitializer.setOrigin({100,-175});
+		attackInitializer.setOrigin({ 100,-175 });
 	}
 	else if (lastDir == enemyDirection::Right && currentAnimation != Flight.get() || lastDir == enemyDirection::Right && currentAnimation != Special.get())
 	{
@@ -80,8 +80,6 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 	{
 		dragonBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y - 100.f });
 
-	//	attackBox.setPosition({ currentAnimation->getSprite().getPosition().x, currentAnimation->getSprite().getPosition().y - 100.f });
-
 	}
 
 	if (leftLure || rightLure)
@@ -89,11 +87,12 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 		if (playOnce16)
 		{
 			bossMusic.play();
+			fightStarted = true;
 			playOnce16 = false;
 		}
 	}
 
-	if ( currentAnimation == Takeoff.get())
+	if (currentAnimation == Takeoff.get())
 	{
 
 		if (currentAnimation->getCurrentFrame() >= 3)
@@ -116,7 +115,7 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 		}
 
 
-		attackLogic(tiles);
+		attackLogic(tiles,dt);
 
 		landingLogic(tiles);
 
@@ -126,8 +125,8 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 	{
 		if (currentAnimation != Takeoff.get())
 		{
-			if (currentAnimation!= Attack2.get() && currentAnimation != Takeoff.get() && currentAnimation != Flight.get() && currentAnimation != Special.get() && currentAnimation != Landing.get())
-			switchAnimation(Hurt.get());
+			if (currentAnimation != Attack2.get() && currentAnimation != Takeoff.get() && currentAnimation != Flight.get() && currentAnimation != Special.get() && currentAnimation != Landing.get())
+				switchAnimation(Hurt.get());
 
 			if (playOnce2)
 			{
@@ -144,10 +143,10 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 					else if (random == 2)
 						dragonHurtSound3.play();
 				}
-				
+
 				playOnce2 = false;
 			}
-			
+
 
 			if (currentAnimation == Hurt.get())
 			{
@@ -172,17 +171,20 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 
 		if (!playOnce4)
 		{
-			
+
 			dead = true;
 			dragonDeathSound.play();
 			playOnce4 = true;
-			
+			fightStarted = false;
+
 		}
 
 		switchAnimation(Dead.get());
-		currentAnimation->update(dt); 
+		gravityLogic(tiles, dt);
+		currentAnimation->update(dt);
+		dragonBar.update(dt, health, maxHealth, background->getPosition().x + 400.f, background->getPosition().y + 900.f);
 		return;
-		
+
 	}
 
 	if (currentAnimation == Special.get())
@@ -193,15 +195,15 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 			dragonFireSpecialSound.play();
 			playOnce14 = false;
 		}
-		
-		
+
+
 
 		attackBox.setSize({ 35.f, 100.f });
 
 		if (lastDir == enemyDirection::Right)
-		attackBox.setOrigin({ -40.f, -80.f });
+			attackBox.setOrigin({ -40.f, -80.f });
 		else
-		attackBox.setOrigin({ 80.f, -80.f });
+			attackBox.setOrigin({ 80.f, -80.f });
 
 		isMoving = true;
 
@@ -211,15 +213,15 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 		// Base position: always follow the dragon
 		attackBox.setPosition(basePos);
 
-		// Now apply your offset depending on the attack state
+		
 		if (currentAnimation == Special.get())
 		{
-			// Example: move downward over time while offset from dragon
+			// move downward over time while offset from dragon
 			float downwardSpeed = 10.f;
-			specialOffset.y += downwardSpeed; // accumulates every frame
+			specialOffset.y += downwardSpeed; 
 
-			
-			
+
+
 			if (Special->getCurrentFrame() >= 8)
 			{
 				specialOffset.y = 0.f;
@@ -238,9 +240,9 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 			specialOffset = { 0.f, 0.f };
 		}
 
-		
 
-		
+
+
 	}
 	else
 	{
@@ -270,21 +272,33 @@ void Dragon::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_
 
 	currentAnimation->getSprite().move({ velocity.x, 0 });
 
-
 	currentAnimation->getSprite().move({ 0, velocity.y });
 
 	currentAnimation->update(dt);
+
+	if (background) {
+		dragonBar.update(dt, health, maxHealth, background->getPosition().x + 400.f, background->getPosition().y + 900.f);
+		name.setPosition(background->getPosition().x + 1230.f, background->getPosition().y + 950.f);
+	}
+
+	
 }
 
 void Dragon::draw(sf::RenderWindow& window)
 {
 	window.draw(currentAnimation->getSprite());
 
-//	window.draw(placeHolder);
+	if (fightStarted)
+	{
+		name.draw(window);
+		dragonBar.draw(window);
+	}
+	
+	//window.draw(placeHolder);
 
 	//window.draw(dragonBox);
 
-	//window.draw(this->rightLureBox);
+//	window.draw(this->rightLureBox);
 
 	//window.draw(this->leftLureBox);
 
@@ -493,7 +507,7 @@ sf::FloatRect Dragon::getIninitializerBox()
 	return this->attackInitializer.getGlobalBounds();
 }
 
-void Dragon::attackLogic(std::vector<Tile>& tiles)
+void Dragon::attackLogic(std::vector<Tile>& tiles, float dt)
 {
 	if (this->initalizer)
 	{
@@ -535,6 +549,7 @@ void Dragon::attackLogic(std::vector<Tile>& tiles)
 
 	}
 
+
 	if (counter >= 2)
 	{
 	
@@ -550,7 +565,7 @@ void Dragon::attackLogic(std::vector<Tile>& tiles)
 
 		if (random == 3)
 		{
-			flightAttackLogic(tiles);
+			flightAttackLogic(tiles,dt);
 
 		}
 		else
@@ -675,6 +690,8 @@ void Dragon::landingLogic(std::vector<Tile>& tiles)
 			Takeoff->reset();
 			Flight->reset();	
 			Landing->reset();
+			Special->reset();
+			//Attack2->reset();
 			random = std::rand() % 4;
 
 			
@@ -720,10 +737,10 @@ void Dragon::gravityLogic(std::vector<Tile>& tiles, float dt)
 		velocity.y = 0.f;
 	}
 
-//	std::cout << velocity.y << std::endl;
+	
 }
 
-void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
+void Dragon::flightAttackLogic(std::vector<Tile>& tiles, float dt)
 {
 
 	if (!isLanding)
@@ -795,7 +812,6 @@ void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
 			}
 
 		}
-		//std::cout << "SECONDS: " << dragonWaitClock2.getElapsedTime().asMilliseconds() << std::endl;
 
 		if (this->dragonWaitClock2.getElapsedTime() > waitInterval2 )
 		{
@@ -825,7 +841,7 @@ void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
 			if (!teleported2)
 			{
 				currentAnimation->getSprite().setPosition({
-				helper.getGlobalBounds().getCenter().x + 3000.f, helper.getGlobalBounds().getCenter().y - 1500.f});
+				helper.getGlobalBounds().getCenter().x + 3000.f, helper.getGlobalBounds().getCenter().y - 1700.f});
 
 				teleported2 = true;
 			}
@@ -864,6 +880,8 @@ void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
 
 				//velocity.y = 5.8f;
 
+				velocity.y += (gravity * 5 ) * dt;
+
 				if (playOnce17)
 				{
 					dragonFireSpecialSound.stop();
@@ -875,16 +893,14 @@ void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
 
 				if (currentAnimation->isFinished())
 				{
-					Landing->reset();
 					isLanding = false;
 					counter = 0;
 					leftLure = false;
 					rightLure = false;
 					initalizer = false;
 					playOnce = true;
-					Takeoff->reset();
-					Flight->reset();
 					teleported = false;
+					teleported2 = false;
 					playOnce5 = true;
 					playOnce6 = true;
 					playOnce12 = true;
@@ -896,7 +912,10 @@ void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
 					dragonWaitClock2.restart(); 
 					switchAnimation(Idle.get());
 					random = std::rand() % 4;
-
+					Takeoff->reset();
+					Flight->reset();
+					Landing->reset();
+					Special->reset();
 					dragonLandSound.play();
 				}
 			}
@@ -906,4 +925,9 @@ void Dragon::flightAttackLogic(std::vector<Tile>& tiles)
 	}
 
 
+}
+
+void Dragon::setBackgroundShape(sf::RectangleShape* bg)
+{
+	background = bg;
 }

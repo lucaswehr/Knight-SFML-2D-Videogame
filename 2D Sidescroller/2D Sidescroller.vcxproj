@@ -140,8 +140,8 @@
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Skeleton.cpp" />
+    <ClCompile Include="text.cpp" />
     <ClCompile Include="Tile.cpp" />
-    <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="wolf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,10 +149,11 @@
     <ClInclude Include="Arrow.hpp" />
     <ClInclude Include="Dragon.hpp" />
     <ClInclude Include="Enemy.hpp" />
+    <ClInclude Include="Healthbar.hpp" />
     <ClInclude Include="Knight.hpp" />
     <ClInclude Include="Skeleton.hpp" />
+    <ClInclude Include="text.hpp" />
     <ClInclude Include="Tile.hpp" />
-    <ClInclude Include="TileMap.hpp" />
     <ClInclude Include="wolf.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -40,8 +40,7 @@ public:
 
         if (elapsedTime >= frameDuration) {
             elapsedTime = 0.f;
-            currentFrame = (currentFrame + 1);  // Loop through frames
-          
+            currentFrame = (currentFrame + 1); 
             
 
          if (currentFrame >= frameCount)
@@ -62,13 +61,8 @@ public:
 
          }
             
-            updateTexture();  // Update the sprite's texture rect based on the current frame
-        }
-
-      //  std::cout << "Current frame:" << currentFrame << "Frame count: " << frameCount << std::endl;
-
-
-       
+            updateTexture(); 
+        }     
     }
 
 
@@ -98,7 +92,7 @@ public:
 
     void setDirection(Direction dir) {
         direction = dir;
-        updateTexture(); // Update flip immediately
+        updateTexture(); 
     }
 
     void setScale(const sf::Vector2f& scale) {
@@ -107,7 +101,7 @@ public:
 
     void setBaseScale(const sf::Vector2f& scale) {
         baseScale = scale;
-        updateTexture(); // immediately apply
+        updateTexture(); 
     }
 
 
@@ -133,6 +127,9 @@ public:
 		frameDuration = newTime;
 	}
 
+    void setOffset(const sf::Vector2f& off) { offset = off; }
+    sf::Vector2f getOffset() const { return offset; }
+
 private:
 
     sf::Sprite sprite;
@@ -150,17 +147,19 @@ private:
     bool finished;
     bool shouldLoop;
 
+    sf::Vector2f offset = { 0.f, 0.f };
+
     void updateTexture()
     {
        
         auto size = texture.getSize();
       
-        int frameWidth = texture.getSize().x / frameCount;  // Divide by frame count (number of columns)
-        int frameHeight = texture.getSize().y / frameRows; // Assuming there are 4 rows in the sprite sheet
+        int frameWidth = texture.getSize().x / frameCount;  
+        int frameHeight = texture.getSize().y / frameRows; 
 
-        // Calculate the texture coordinates for the 4th row (index 3)
-       int left = frameWidth * currentFrame;   // The x-coordinate of the current frame
-        int top = frameHeight * rowToAnimate;  // The y-coordinate for the 4th row (index 3)
+       
+       int left = frameWidth * currentFrame;   
+        int top = frameHeight * rowToAnimate;  
 
        
        sprite.setTextureRect(sf::IntRect({ left, top }, { frameWidth, frameHeight }));

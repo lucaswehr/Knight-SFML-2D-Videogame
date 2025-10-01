@@ -10,21 +10,23 @@ class wolf : public Enemy
 {
 public:
 
-	wolf(sf::Texture& walk2, sf::Texture& textureAttack1, sf::Texture& textureAttack2, sf::Texture& textureAttack3, sf::Texture& textureDeath, sf::Texture& textureHurt, sf::SoundBuffer& hurtBuffer1, sf::SoundBuffer& hurtBuffer2, sf::SoundBuffer& deathBuffer, float x, float y) :
+	wolf(sf::Texture& walk2, sf::Texture& textureAttack1, sf::Texture& textureAttack2, sf::Texture& textureAttack3, sf::Texture& textureDeath, sf::Texture& textureHurt, float x, float y) :
 
 		hurtSound1(hurtBuffer1),
 		hurtSound2(hurtBuffer2),
 		deathSound(deathBuffer)
 	{
-		hurtBuffer1.loadFromFile("Sounds/NEWwolfHurt2.wav");
+		if (!hurtBuffer1.loadFromFile("Sounds/NEWwolfHurt2.wav"))
+			std::cerr << "Failed to load NEWwolfHurt2.wav\n";
 		hurtSound1.setBuffer(hurtBuffer1);
 
-		hurtBuffer2.loadFromFile("Sounds/wolfHurt1.wav");
+		if (!hurtBuffer2.loadFromFile("Sounds/wolfHurt1.wav"))
+			std::cerr << "Failed to load wolfHurt1.wav\n";
 		hurtSound2.setBuffer(hurtBuffer2);
 
-		deathBuffer.loadFromFile("Sounds/wolfDeath.wav");
+		if (!deathBuffer.loadFromFile("Sounds/wolfDeath.wav"))
+			std::cerr << "Failed to load wolfDeath.wav\n";
 		deathSound.setBuffer(deathBuffer);
-
 
 		walk = std::make_unique<Animation>(walk2, 11, 1, 0.1f, 0, false, true);
 		attack1 = std::make_unique<Animation>(textureAttack1, 6, 1, 0.1f, 0, false, false);
@@ -189,10 +191,15 @@ private:
 
 	bool leftLure = false;
 
+	sf::SoundBuffer hurtBuffer1;
+	sf::SoundBuffer hurtBuffer2;
+	sf::SoundBuffer deathBuffer;
+
 	sf::Sound hurtSound1;
 	sf::Sound hurtSound2;
 	sf::Sound deathSound;
 
+	
 	bool playOnce = false;
 
 	void switchAnimation2(Animation* newAnim) {

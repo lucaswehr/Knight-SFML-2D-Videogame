@@ -235,18 +235,6 @@ void Skeleton::shootArrow(std::vector<Arrow>& arrows, std::vector<Tile>& tiles, 
 		
 	}
 
-	/*for (auto it = arrows.begin(); it != arrows.end(); )
-	{
-		it->update(dt);
-
-		if (it->isExpired()) {
-			it = arrows.erase(it);
-		}
-		else {
-			++it;
-		}
-	}*/
-
 	
 	for (auto& arrow : arrows)
 	{

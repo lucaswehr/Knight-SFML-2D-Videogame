@@ -62,10 +62,10 @@ void Tile::drawCollisionBox(sf::RenderWindow& window) {
     // Set the position of the collision box to match the tile's sprite
     collisionBox.setPosition({ bounds.position.x, bounds.position.y });
 
-    // Set a color to make the collision box visible (e.g., blue)
+    // Set a color to make the collision box visible
     collisionBox.setFillColor(sf::Color(0, 0, 255, 128)); // Semi-transparent blue
 
-    // Draw the collision box
+    // Draw collision box
     window.draw(collisionBox);
 }
 

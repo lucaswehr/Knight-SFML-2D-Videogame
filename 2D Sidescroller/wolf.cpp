@@ -243,7 +243,6 @@ void wolf::update(float dt, std::vector<Tile>& tiles, std::vector<std::unique_pt
 		{
 		//	velocity.x = 3.f;
 			currentAnimation2->getSprite().setScale({ 1.5,1.5 });
-			//std::cout << "POOP";
 		}
 
 		if (leftLure && !isKnockedBack)
@@ -277,7 +276,7 @@ void wolf::checkCollision(std::vector<Tile>& tiles)
 		{
 			if (wolfBox.getGlobalBounds().position.x + wolfBox.getGlobalBounds().size.x - 50 <= tile.getBounds().position.x + 50.f) //collision from right side
 			{
-				std::cout << "WOLF COLLISION FROM RIGHT" << std::endl;
+				//std::cout << "WOLF COLLISION FROM RIGHT" << std::endl;
 
 				currentAnimation2->getSprite().setScale({ -1.5,1.5 });
 
@@ -289,7 +288,7 @@ void wolf::checkCollision(std::vector<Tile>& tiles)
 			}
 			else
 			{
-				std::cout << "WOLF COLLISION FROM LEFT" << std::endl;
+				//std::cout << "WOLF COLLISION FROM LEFT" << std::endl;
 
 				currentAnimation2->getSprite().setScale({ 1.5,1.5 });
 
@@ -306,7 +305,7 @@ void wolf::checkCollision(std::vector<Tile>& tiles)
 	if (collisionDetected)
 	{
 		velocity.x = -velocity.x; // Flip direction
-		std::cout << "WOLF COLLISION" << std::endl;
+		//std::cout << "WOLF COLLISION" << std::endl;
 	}
 }
 
@@ -466,17 +465,5 @@ sf::FloatRect wolf::getIninitializerBox()
 {
 	return sf::FloatRect();
 }
-
-
-
-
-
-//void wolf::initializeSounds()
-//{
-//	hurtBuffer1.loadFromFile("Sounds/NEWwolfHurt2.wav");
-//	hurtSound1.setBuffer(hurtBuffer1);
-//}
-//
-//
 
 
