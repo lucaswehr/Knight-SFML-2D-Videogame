@@ -1,4 +1,6 @@
-Hello this is a project ive been working on for half a year now. Its still a work in progress, but I wanted to show some progress and let the public see what Ive been working on. This game is a in a 2D side scroller made enitrely from SFML 3.0 in visual Studio C++. 
+THE LAST PALADIN
+
+Hello this is a project ive been working on for half a year now. I just finished my c++ sfml game and its published on itch.io! This game is a in a 2D side scroller made enitrely from SFML 3.0 in visual Studio C++. 
 
 The code is also a little messy but when I have time I will polish it up
 
@@ -22,20 +24,14 @@ Controls:
 
 - If you press 'W' and press 'W' again near a ledge, you can hang off a tile, pressing 'W' a third time allows you to climb up ledges.
 
+- Press R to heal using flasks
+
 Known Bugs:
-- Sometimes when you first start up the game, the knight will be placed in odd locations or be dead instantly, if that happens just exit out and start it up again.
+- I added a sprint attack animation, but I haven't coded it in yet so it doesnt function as of now
 
-- I added a sprint attack animation, but I haven't coded it in yet so it doesnt function as of now.
+Heres a trailer to the launch of the game:
 
-- The knight can rarely be uncontrollable after being hurt and attacking at the same time, if this happens just roll, it should reset the controls
+https://www.youtube.com/watch?v=KqDAj2IHK88&t=25s
 
-- The boss at the end isn't entirely polished
-
-
-Heres a video link to a 2 month old build of the game:
-
-https://youtu.be/GEIgncOb57M
-
-WORK IN PROGESS
 
 
