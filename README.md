@@ -2,6 +2,9 @@ THE LAST PALADIN
 
 Hello this is a project ive been working on for half a year now. I just finished my c++ sfml game and its published on itch.io! This game is a in a 2D side scroller made enitrely from SFML 3.0 in visual Studio C++. 
 
+Play it Here:
+https://lucaswehr.itch.io/the-last-paladin
+
 The code is also a little messy but when I have time I will polish it up
 
 Rules:
