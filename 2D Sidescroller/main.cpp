@@ -26,6 +26,7 @@ enum class gameState
 int main()
 {
     std::srand(std::time(0));
+    std::cout << "Game starting..." << std::endl;
 
     gameState gameState = gameState::mainMenu;
 
@@ -34,7 +35,8 @@ int main()
     window.setVerticalSyncEnabled(true);
     window.setMouseCursorVisible(false);
 
-    sf::View view(sf::FloatRect({ 0, 0 }, { 1920, 1080 }));
+    sf::Vector2u windowSize = window.getSize();
+    sf::View view(sf::FloatRect({ 0, 0 }, { (float)windowSize.x, (float)windowSize.y }));
 
     view.setSize({ 1920, 1080 });
 
