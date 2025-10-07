@@ -4,7 +4,9 @@ Hello this is a project ive been working on for half a year now. I just finished
 
 Play it Here:
 https://lucaswehr.itch.io/the-last-paladin
-
+-----------------------------------------------------------------------------------------------------------------------------------------------
+go to the playGame folder and select PLAYGAME to start the game
+-----------------------------------------------------------------------------------------------------------------------------------------------
 The code is also a little messy but when I have time I will polish it up
 
 Rules:
