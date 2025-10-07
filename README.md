@@ -8,7 +8,9 @@ https://lucaswehr.itch.io/the-last-paladin
 go to the playGame folder and select PLAYGAME to start the game
 -----------------------------------------------------------------------------------------------------------------------------------------------
 The code is also a little messy but when I have time I will polish it up
-
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Go to the playGame folder and select PLAYGAME to start the game
+-----------------------------------------------------------------------------------------------------------------------------------------------
 Rules:
 
 You are a Medievil knight traversing a land riddled with enemies. The goal is to reach the end of the level where a boss is there to meet you. 
