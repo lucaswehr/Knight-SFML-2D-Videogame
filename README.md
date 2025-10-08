@@ -9,8 +9,7 @@ go to the playGame folder and select PLAYGAME to start the game
 -----------------------------------------------------------------------------------------------------------------------------------------------
 The code is also a little messy but when I have time I will polish it up
 -----------------------------------------------------------------------------------------------------------------------------------------------
-Go to the playGame folder and select PLAYGAME to start the game
------------------------------------------------------------------------------------------------------------------------------------------------
+
 Rules:
 
 You are a Medievil knight traversing a land riddled with enemies. The goal is to reach the end of the level where a boss is there to meet you. 
@@ -19,11 +18,11 @@ Controls:
 
 - 'A' and 'D' are walking left and right respectively.
 
-- 'W' is jump
+- 'Space' is jump
 
 - 'S' is to put up your shield and guard, blocking enemy projectiles and attacks.
 
-- 'A + SPACE' or 'D + SPACE' is to sprint
+- 'A + LShift' or 'D + LShift' is to sprint
 
 - Left Click allows you to attack enemies with your sword
 
@@ -35,6 +34,7 @@ Controls:
 
 Known Bugs:
 - I added a sprint attack animation, but I haven't coded it in yet so it doesnt function as of now
+
 
 Heres a trailer to the launch of the game:
 
