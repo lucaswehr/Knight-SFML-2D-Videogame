@@ -38,12 +38,10 @@ int main()
     sf::Vector2u windowSize = window.getSize();
     sf::View view(sf::FloatRect({ 0, 0 }, { (float)windowSize.x, (float)windowSize.y }));
 
-    view.setSize({ 1920, 1080 });
-
-    int windowWidth = 1920;
-    int windowHeight = 1080;
+    float windowWidth = (float)windowSize.x;
+    float windowHeight = (float)windowSize.y;
     const float margin = 200.f;
-   
+    
     window.setFramerateLimit(60);
     sf::Clock clock;
 
@@ -934,7 +932,7 @@ int main()
             float parallaxFactor = 0.1f;
 
             int offsetX = static_cast<int>(center.x * parallaxFactor) % textureWidth;
-            backgroundShape.setTextureRect(sf::IntRect({ offsetX, 0 }, { windowWidth, windowHeight }));
+            backgroundShape.setTextureRect(sf::IntRect({ offsetX, 0 }, { (int)windowWidth, (int)windowHeight }));
             backgroundShape.setPosition({ center.x - windowWidth / 2.f, center.y - windowHeight / 2.f });
 
             for (auto& enemy : enemies) {
